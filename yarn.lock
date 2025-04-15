@@ -698,7 +698,6 @@ __metadata:
     "@vlad-yakovlev/telegram-md": "npm:^2.0.0"
     abitype: "npm:^1.0.8"
     date-fns: "npm:^4.1.0"
-    esbuild: "npm:^0.25.0"
     eslint: "npm:^8.57.0"
     husky: "npm:^9.0.11"
     lint-staged: "npm:^15.2.2"
@@ -2679,7 +2678,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esbuild@npm:^0.25.0, esbuild@npm:~0.25.0":
+"esbuild@npm:~0.25.0":
   version: 0.25.2
   resolution: "esbuild@npm:0.25.2"
   dependencies:
