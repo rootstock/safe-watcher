@@ -5,12 +5,12 @@ import { envAdapter } from "zod-config/env-adapter";
 import { jsonAdapter } from "zod-config/json-adapter";
 import { yamlAdapter } from "zod-config/yaml-adapter";
 
-import { buildConfig, isECS } from "../aws/index.js";
+import { buildConfig, isAWS } from "../aws/index.js";
 import logger from "../logger.js";
 import { Schema } from "./schema.js";
 
 export async function loadConfig(): Promise<Schema> {
-  if (isECS()) {
+  if (await isAWS()) {
     // If running in ECS, load config from AWS
     const config = await buildConfig();
     const tempFilePath = tmp.fileSync({ postfix: ".json" }).name;
