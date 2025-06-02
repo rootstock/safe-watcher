@@ -1634,7 +1634,7 @@ __metadata:
     viem: "npm:^2.30.5"
     vitest: "npm:^3.1.4"
     yaml: "npm:^2.8.0"
-    zod: "npm:^3.25.42"
+    zod: "npm:^3.25.48"
     zod-config: "npm:^1.0.0"
   languageName: unknown
   linkType: soft
@@ -9004,9 +9004,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zod@npm:^3.25.42":
-  version: 3.25.42
-  resolution: "zod@npm:3.25.42"
-  checksum: 10c0/daa04d3bd5d87318790def440c074a154e29a5c900aefc6605c078df5878cdc9b465091c1ad117478e1f907242b8983d69bf2c11fcf354772b18d7103b94383a
+"zod@npm:^3.25.48":
+  version: 3.25.48
+  resolution: "zod@npm:3.25.48"
+  checksum: 10c0/bb1a537b27b62e6e7a37f909e9ff029c6ddac89fd6bba24b8e92b2002d5e9aaa90f74b30da1186a1f6ea5f1a0e216b77fad49301a91998d32730fc1b65719dc3
   languageName: node
   linkType: hard
