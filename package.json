@@ -43,7 +43,7 @@
     "@commitlint/cli": "^19.0.3",
     "@commitlint/config-conventional": "^19.0.3",
     "@types/jest": "^29.5.14",
-    "@types/node": "^22.15.21",
+    "@types/node": "^22.15.29",
     "esbuild": "^0.25.5",
     "eslint": "^9.28.0",
     "eslint-config-prettier": "^10.1.5",
