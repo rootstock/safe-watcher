@@ -37,7 +37,7 @@
     "viem": "^2.30.5",
     "yaml": "^2.8.0",
     "zod": "^3.25.49",
-    "zod-config": "^1.0.0"
+    "zod-config": "^1.0.2"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.0.3",

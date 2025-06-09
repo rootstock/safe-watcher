@@ -1635,7 +1635,7 @@ __metadata:
     vitest: "npm:^3.1.4"
     yaml: "npm:^2.8.0"
     zod: "npm:^3.25.49"
-    zod-config: "npm:^1.0.0"
+    zod-config: "npm:^1.0.2"
   languageName: unknown
   linkType: soft
 
@@ -8997,9 +8997,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zod-config@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "zod-config@npm:1.0.0"
+"zod-config@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "zod-config@npm:1.0.2"
   peerDependencies:
     dotenv: ">=15"
     smol-toml: ^1.x
@@ -9012,7 +9012,7 @@ __metadata:
       optional: true
     yaml:
       optional: true
-  checksum: 10c0/ce8659cac17391e7deda5e659dcad637e2d9ab9f2fa9a6aaec5250ddffd746e1a5b700ec696c9ed01678234a8251b92815bc30f2f982636feeec487ca53c2adc
+  checksum: 10c0/85f559bbe71081631675c7aa8af4b8af42f52ed116eab65b03949fd1f80abc080beb433b62f849f77142e3f042c20dfbfc9772151294322628522307dfa3405b
   languageName: node
   linkType: hard
 
