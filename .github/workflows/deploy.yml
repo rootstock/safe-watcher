@@ -2,7 +2,7 @@ name: Deploy to Amazon ECS
 
 on:
   release:
-    types: [edited, published]
+    types: [published]
 
 permissions: read-all
 
