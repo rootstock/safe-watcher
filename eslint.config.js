@@ -6,6 +6,9 @@ import typescriptParser from "@typescript-eslint/parser";
 
 export default [
   {
+    ignores: ["dist/**", "node_modules/**"],
+  },
+  {
     files: ["**/*.ts"],
     plugins: {
       "@typescript-eslint": typescriptEslintPlugin,
@@ -13,16 +16,15 @@ export default [
       "unused-imports": unusedImports,
     },
     languageOptions: {
-      parser: typescriptParser, // Use TypeScript parser
+      parser: typescriptParser,
       parserOptions: {
-        project: "./tsconfig.json", // Path to your tsconfig.json
+        project: "./tsconfig.json",
       },
     },
     rules: {
       "@typescript-eslint/consistent-type-assertions": "off",
       "@typescript-eslint/explicit-member-accessibility": "off",
       "@typescript-eslint/member-ordering": "off",
-      "@typescript-eslint/no-unused-vars": "off",
       "@typescript-eslint/no-floating-promises": "warn",
       complexity: "off",
       "max-params": "off",
@@ -43,7 +45,7 @@ export default [
     settings: {
       "import/resolver": {
         typescript: {
-          alwaysTryTypes: true, // always try to resolve types under `<root>@types` directory even it doesn't contain any source code, like `@types/unist`
+          alwaysTryTypes: true,
         },
       },
     },

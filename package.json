@@ -13,8 +13,8 @@
     "prepare": "husky",
     "prettier": "prettier --write .",
     "prettier:ci": "npx prettier --check .",
-    "lint": "eslint \"**/*.ts\" --fix",
-    "lint:ci": "eslint \"**/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\" --fix",
+    "lint:ci": "eslint \"src/**/*.ts\"",
     "typecheck:ci": "tsc --noEmit",
     "test": "npx jest --coverage --watchAll=false || exit 0",
     "test:watch": "npx jest --coverage --watch"
