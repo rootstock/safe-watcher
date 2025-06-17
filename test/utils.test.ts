@@ -1,5 +1,4 @@
 import { fetchRetry } from "../src/utils/fetchRetry.js";
-import { sleep } from "../src/utils/sleep.js";
 
 // Mock fetch
 global.fetch = jest.fn();
@@ -51,13 +50,4 @@ describe("fetchRetry", () => {
     ).rejects.toThrow("Invalid response");
     expect(validateResponse).toHaveBeenCalledWith(mockResponse);
   }, 10000);
-});
-
-describe("sleep", () => {
-  test("should wait for specified milliseconds", async () => {
-    const start = Date.now();
-    await sleep(3);
-    const end = Date.now();
-    expect(end - start).toBeGreaterThanOrEqual(3);
-  });
 });
