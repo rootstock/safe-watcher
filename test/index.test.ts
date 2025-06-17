@@ -74,6 +74,10 @@ describe("index.ts", () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
+
+    // Reset the watchers array
+    (indexModule as any).watchers = [];
+
     // Use the imported mockConfig, but ensure it has all notifier properties
     mockSender = {
       addNotifier: jest.fn().mockImplementation(() => Promise.resolve()),
@@ -129,20 +133,36 @@ describe("index.ts", () => {
   });
 
   test("initializeWatchers should stop watchers for addresses not in config", async () => {
-    // Set up mockConfig with a different address than the watcher
+    // First, create a watcher that exists in the first config but not the second
+    const firstConfig = {
+      ...defaultMockConfig,
+      safeAddresses: [
+        mockSafeAddressWithAlias,
+        mockAnotherSafeAddressWithAlias,
+      ] as [
+        Partial<Record<`${string}:0x${string}`, string>>,
+        ...Partial<Record<`${string}:0x${string}`, string>>[],
+      ],
+    };
+
+    // Second config only has one address (removing the other one)
     const mockConfigWithDifferentAddress = {
       ...defaultMockConfig,
       safeAddresses: [mockSafeAddressWithAlias] as [
         Partial<Record<`${string}:0x${string}`, string>>,
         ...Partial<Record<`${string}:0x${string}`, string>>[],
       ],
-      telegramBotToken: "test-token",
-      telegramChannelId: "test-channel",
-      slackBotToken: "test-slack-token",
-      slackChannelId: "test-slack-channel",
     };
 
-    await initializeWatchers(defaultMockConfig, mockSender);
+    // Set up mock watcher to return the address that will be removed
+    mockWatcher.getSafeAddress.mockReturnValue(
+      Object.keys(mockAnotherSafeAddressWithAlias)[0],
+    );
+
+    // Initialize with first config (creating watchers)
+    await initializeWatchers(firstConfig, mockSender);
+
+    // Initialize with second config (should stop the removed watcher)
     await initializeWatchers(mockConfigWithDifferentAddress, mockSender);
     expect(mockWatcher.stop).toHaveBeenCalled();
   });
@@ -158,14 +178,23 @@ describe("index.ts", () => {
   });
 
   test("run should handle graceful shutdown", async () => {
-    // Directly invoke the SIGTERM handler from the module
-    const sigtermHandler = process
-      .listeners("SIGTERM")
-      .find(fn => fn.name === "" || fn.name === "bound ");
-    // Ensure the watcher is properly mocked
+    // Mock the watchers array to contain our mock watcher
+    jest.spyOn(indexModule, "setWatchers").mockImplementation(() => {
+      // Mock the exported watchers array
+      (indexModule as any).watchers = [mockWatcher];
+    });
+
     mockWatcher.stop.mockImplementation(() => Promise.resolve());
-    (indexModule as any).watchers = [mockWatcher];
+
     await run();
+
+    // Manually set the watchers for the test
+    (indexModule as any).watchers = [mockWatcher];
+
+    // Get all SIGTERM listeners after run() has been called
+    const listeners = process.listeners("SIGTERM");
+    const sigtermHandler = listeners[listeners.length - 1]; // Get the last added listener
+
     if (sigtermHandler) {
       await sigtermHandler("SIGTERM");
       expect(mockWatcher.stop).toHaveBeenCalled();
