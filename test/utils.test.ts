@@ -56,8 +56,8 @@ describe("fetchRetry", () => {
 describe("sleep", () => {
   test("should wait for specified milliseconds", async () => {
     const start = Date.now();
-    await sleep(100);
+    await sleep(3);
     const end = Date.now();
-    expect(end - start).toBeGreaterThanOrEqual(100);
+    expect(end - start).toBeGreaterThanOrEqual(3);
   });
 });

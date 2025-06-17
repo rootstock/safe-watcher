@@ -6,7 +6,12 @@ import logger from "./logger.js";
 import { NotificationSender, Slack, Telegram } from "./notifications/index.js";
 import SafeWatcher from "./SafeWatcher.js";
 
-let watchers: SafeWatcher[] = [];
+// exported for testing
+export let watchers: SafeWatcher[] = [];
+
+export function setWatchers(newWatchers: SafeWatcher[]) {
+  watchers = newWatchers;
+}
 
 export async function handleSafeAddress(
   safe: any,
@@ -74,7 +79,7 @@ export async function initializeWatchers(
   }
 
   // Update the watchers array with the new state
-  watchers = Array.from(existingWatchers.values());
+  setWatchers(Array.from(existingWatchers.values()));
   logger.info("Watchers updated with new configuration");
 }
 
@@ -133,7 +138,7 @@ process.on("SIGTERM", () => {
 });
 
 // Only run if this file is being executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && process.argv[1].endsWith("index.mjs")) {
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
   run();
 }
