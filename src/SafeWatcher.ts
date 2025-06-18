@@ -14,7 +14,7 @@ import type {
 } from "./safe/index.js";
 import { MULTISEND_CALL_ONLY, SafeApiWrapper } from "./safe/index.js";
 import type { SafeTxHashesResponse } from "./safe-hashes/index.js";
-import { parseResponse, SafeTxHashes } from "./safe-hashes/index.js";
+import { parseResponse, Result, SafeTxHashes } from "./safe-hashes/index.js";
 import type { INotificationSender } from "./types.js";
 
 interface SafeWatcherOptions {
@@ -144,9 +144,11 @@ class SafeWatcher {
     //   tx.safeTxHash,
     // ]);
     const detailed = await this.#fetchDetailed(tx.safeTxHash);
-    const safeTxHashes: SafeTxHashesResponse = parseResponse(
+
+    const safeTxHashes = this.#safeTxHashesProcessing(
       await SafeTxHashes(this.prefix, this.safe, tx.nonce),
     );
+
     const isMalicious =
       !MULTISEND_CALL_ONLY.has(detailed.to.toLowerCase() as Address) &&
       detailed.operation !== 0;
@@ -182,9 +184,11 @@ class SafeWatcher {
     );
 
     const detailed = await this.#fetchDetailed(tx.safeTxHash);
-    const safeTxHashes: SafeTxHashesResponse = parseResponse(
+
+    const safeTxHashes = this.#safeTxHashesProcessing(
       await SafeTxHashes(this.prefix, this.safe, tx.nonce),
     );
+
     await this.#notificationSender?.notify(
       {
         type: tx.isExecuted ? "executed" : "updated",
@@ -196,6 +200,24 @@ class SafeWatcher {
       },
       safeTxHashes,
     );
+  }
+
+  #safeTxHashesProcessing(
+    safeTxHashesResult: Result<string>,
+  ): SafeTxHashesResponse | undefined {
+    if (safeTxHashesResult.success && safeTxHashesResult.data) {
+      try {
+        return parseResponse(safeTxHashesResult.data);
+      } catch (error) {
+        this.#logger.error({ error }, "Failed to parse SafeTxHashes response");
+      }
+    } else {
+      this.#logger.error(
+        { error: safeTxHashesResult.error },
+        "Failed to get SafeTxHashes",
+      );
+      return undefined;
+    }
   }
 
   #checkSumAddress(address: Address): Address {

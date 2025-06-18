@@ -51,33 +51,73 @@ describe("SafeTxHashes", () => {
       mockSafeAddressNoPrefix,
       mockNonce,
     );
-    expect(result).toBe(mockStdout);
+    expect(result).toEqual({
+      success: true,
+      data: mockStdout,
+    });
   });
 
-  test("should reject on script error", async () => {
-    const mockError = new Error("Script failed");
+  // Test the actual error handling path (lines 23-30)
+  test("should handle script error gracefully with actual function", async () => {
+    const mockError = new Error("Script execution failed");
     (exec as unknown as Mock).mockImplementation(
       (cmd: unknown, callback: unknown) => {
+        // Simulate the actual error handling in the real function
         (callback as ExecCallback)(mockError, "", "");
       },
     );
 
-    await expect(
-      SafeTxHashes(rskPrefix, mockSafeAddressNoPrefix, mockNonce),
-    ).rejects.toThrow("Error executing script: Script failed");
+    const result = await SafeTxHashes(
+      rskPrefix,
+      mockSafeAddressNoPrefix,
+      mockNonce,
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "Error executing script: Script execution failed",
+    });
   });
 
-  test("should reject on stderr output", async () => {
-    const mockStderr = "Error: Invalid parameters";
+  test("should handle stderr output gracefully with actual function", async () => {
+    const mockStderr = "Permission denied";
     (exec as unknown as Mock).mockImplementation(
       (cmd: unknown, callback: unknown) => {
+        // Simulate the actual stderr handling in the real function
         (callback as ExecCallback)(null, "", mockStderr);
       },
     );
 
-    await expect(
-      SafeTxHashes(rskPrefix, mockSafeAddressNoPrefix, mockNonce),
-    ).rejects.toThrow("Error executing script: Error: Invalid parameters");
+    const result = await SafeTxHashes(
+      rskPrefix,
+      mockSafeAddressNoPrefix,
+      mockNonce,
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "Error executing script: Permission denied",
+    });
+  });
+
+  test("should return success with stdout data", async () => {
+    const mockStdout = "Transaction hash: 0x123456789";
+    (exec as unknown as Mock).mockImplementation(
+      (cmd: unknown, callback: unknown) => {
+        (callback as ExecCallback)(null, mockStdout, "");
+      },
+    );
+
+    const result = await SafeTxHashes(
+      rskPrefix,
+      mockSafeAddressNoPrefix,
+      mockNonce,
+    );
+
+    expect(result).toEqual({
+      success: true,
+      data: mockStdout,
+    });
   });
 
   test("should support all network prefixes", async () => {
@@ -89,12 +129,82 @@ describe("SafeTxHashes", () => {
     );
 
     for (const prefix of Object.keys(NETWORKS)) {
-      await SafeTxHashes(prefix, mockSafeAddressNoPrefix, mockNonce);
+      const result = await SafeTxHashes(
+        prefix,
+        mockSafeAddressNoPrefix,
+        mockNonce,
+      );
+      expect(result).toEqual({
+        success: true,
+        data: mockStdout,
+      });
       expect(exec).toHaveBeenCalledWith(
         `/app/safe-hashes.sh --network ${NETWORKS[prefix]} --address ${mockSafeAddressNoPrefix} --nonce ${mockNonce}`,
         expect.any(Function),
       );
     }
+  });
+
+  // Test different error scenarios to ensure all code paths are covered
+  test("should handle error with no message", async () => {
+    const mockError = new Error("");
+    (exec as unknown as Mock).mockImplementation(
+      (cmd: unknown, callback: unknown) => {
+        (callback as ExecCallback)(mockError, "", "");
+      },
+    );
+
+    const result = await SafeTxHashes(
+      rskPrefix,
+      mockSafeAddressNoPrefix,
+      mockNonce,
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "Error executing script: ",
+    });
+  });
+
+  test("should handle empty stderr as success", async () => {
+    const mockStdout = "";
+    const mockStderr = "";
+    (exec as unknown as Mock).mockImplementation(
+      (cmd: unknown, callback: unknown) => {
+        (callback as ExecCallback)(null, mockStdout, mockStderr);
+      },
+    );
+
+    const result = await SafeTxHashes(
+      rskPrefix,
+      mockSafeAddressNoPrefix,
+      mockNonce,
+    );
+
+    expect(result).toEqual({
+      success: true,
+      data: mockStdout,
+    });
+  });
+
+  test("should handle non-empty stderr as error", async () => {
+    const mockStderr = "Script execution warning";
+    (exec as unknown as Mock).mockImplementation(
+      (cmd: unknown, callback: unknown) => {
+        (callback as ExecCallback)(null, "", mockStderr);
+      },
+    );
+
+    const result = await SafeTxHashes(
+      rskPrefix,
+      mockSafeAddressNoPrefix,
+      mockNonce,
+    );
+
+    expect(result).toEqual({
+      success: false,
+      error: "Error executing script: Script execution warning",
+    });
   });
 });
 
@@ -106,7 +216,6 @@ describe("parseResponse", () => {
 
   test("should handle missing optional fields", () => {
     const result = parseResponse(mockSafeHashesResponseNoAdditionalFields);
-
     expect(result).toEqual(expectedParsedSafeHashesResponseNoAdditionalFields);
   });
 
@@ -122,8 +231,28 @@ Another invalid line
 `;
 
     const result = parseResponse(mockResponse);
-
     expect(result).toEqual(expectedParsedSafeHashesResponseEmpty);
+  });
+
+  test("should handle invalid numeric value in response", () => {
+    const mockResponse = `
+Multisig address: 0x1234567890123456789012345678901234567890
+To: 0xabcdef1234567890abcdef1234567890abcdef12
+Value: not-a-number
+Data: 0x1234567890abcdef
+Encoded message: 0xabcdef1234567890
+Legacy Ledger Format
+Binary string literal: 0x1234567890abcdef
+Domain hash: 0xabcdef1234567890
+Message hash: 0x1234567890abcdef
+Safe transaction hash: 0xabcdef1234567890
+`;
+
+    const result = parseResponse(mockResponse);
+    expect(result.transactionData.value).toBe(0);
+    expect(result.transactionData.multisigAddress).toBe(
+      "0x1234567890123456789012345678901234567890",
+    );
   });
 });
 

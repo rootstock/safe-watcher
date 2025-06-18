@@ -54,14 +54,35 @@ function createTestWatcher(
   });
 }
 
-// Mock the SafeTxHashes and parseResponse functions
-jest.mock("../src/safe-hashes/index.js", () => ({
-  SafeTxHashes: () =>
-    Promise.resolve(
-      `Multisig address: 0xabc\nTo: 0xdef\nValue: 0\nData: 0x\nEncoded message: 0x123\nMethod: null\nParameters: []\nLegacy Ledger Format\nBinary string literal: 0x456\nDomain hash: 0x1\nMessage hash: 0x2\nSafe transaction hash: 0x3`,
+// Mock SafeTxHashes
+jest.mock("../src/safe-hashes/index.js", () => {
+  return {
+    SafeTxHashes: jest.fn().mockImplementation(() =>
+      Promise.resolve({
+        success: true,
+        data: "mock response",
+      }),
     ),
-  parseResponse: (x: any) => x,
-}));
+    parseResponse: jest.fn().mockImplementation(() => ({
+      transactionData: {
+        to: "0x123",
+        value: 0,
+        data: "0x",
+        encodedMessage: "0x",
+        method: null,
+        parameters: null,
+      },
+      legacyLedgerFormat: {
+        binaryStringLiteral: "",
+      },
+      hashes: {
+        domainHash: "0x",
+        messageHash: "0x",
+        safeTransactionHash: "0x",
+      },
+    })),
+  };
+});
 
 // Mock the SafeApiWrapper class
 jest.mock("../src/safe/index.js", () => {
@@ -175,6 +196,36 @@ describe("SafeWatcher", () => {
       expect(mock).toHaveBeenCalled();
       const event = mock.mock.calls[0][0] as Event;
       expect(event.type).toBe("malicious");
+    });
+
+    test("should handle SafeTxHashes failure gracefully", async () => {
+      const { notifier, mock } = createMockNotifier();
+      const mockApi = createMockApi({
+        fetchLatest: jest
+          .fn<() => Promise<ListedSafeTx[]>>()
+          .mockResolvedValue([mockListedTx]),
+      });
+
+      // Mock SafeTxHashes to fail
+      const { SafeTxHashes } = require("../src/safe-hashes/index.js");
+      SafeTxHashes.mockImplementationOnce(() =>
+        Promise.resolve({
+          success: false,
+          error: "Failed to get hashes",
+        }),
+      );
+
+      const watcher = createTestWatcher({ api: mockApi, notifier });
+      watcher.txs.clear();
+      await watcher.start(0);
+      await watcher["poll"]();
+      watcher.stop();
+
+      expect(mock).toHaveBeenCalled();
+      const event = mock.mock.calls[0][0] as Event;
+      expect(event.type).toBe("created");
+      // Verify that notification was sent without safeTxHashes
+      expect(mock.mock.calls[0][1]).toBeUndefined();
     });
   });
 
