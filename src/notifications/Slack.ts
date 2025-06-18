@@ -27,7 +27,7 @@ export class Slack implements INotifier {
 
   public async send(
     event: Event,
-    safeTxHashes: SafeTxHashesResponse,
+    safeTxHashes?: SafeTxHashesResponse,
   ): Promise<void> {
     const message: SlackMessage = this.#formatMessage(event, safeTxHashes);
     await this.#sendToSlack(message);
@@ -35,7 +35,7 @@ export class Slack implements INotifier {
 
   #formatMessage(
     event: Event,
-    safeTxHashes: SafeTxHashesResponse,
+    safeTxHashes?: SafeTxHashesResponse,
   ): SlackMessage {
     const { type, chainPrefix, safe, tx, name } = event;
 
@@ -69,22 +69,6 @@ export class Slack implements INotifier {
         },
       },
       {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `*To*: \`${safeTxHashes.transactionData.to}\`\n
-          *Value*: \`${safeTxHashes.transactionData.value}\`\n
-          *Data*: \`${safeTxHashes.transactionData.data}\`\n
-          *Encoded Message*: \`${safeTxHashes.transactionData.encodedMessage}\`\n
-          *Method*: \`${safeTxHashes.transactionData.method}\`\n
-          *Parameters: \`${safeTxHashes.transactionData.parameters}\`\n
-          *Binary String Literal*: \`${safeTxHashes.legacyLedgerFormat.binaryStringLiteral}\`\n
-          *Domain Hash*: \`${safeTxHashes.hashes.domainHash}\`\n
-          *Message Hash*: \`${safeTxHashes.hashes.messageHash}\`\n
-          *Transaction Hash*: \`${safeTxHashes.hashes.safeTransactionHash}\``,
-        },
-      },
-      {
         type: "divider",
       },
       {
@@ -100,24 +84,55 @@ export class Slack implements INotifier {
           },
         ],
       },
+      {
+        type: "divider",
+      },
     ];
+
+    if (safeTxHashes) {
+      blocks.push(
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `*To*: \`${safeTxHashes.transactionData.to}\`\n
+          *Value*: \`${safeTxHashes.transactionData.value}\`\n
+          *Data*: \`${safeTxHashes.transactionData.data}\`\n
+          *Encoded Message*: \`${safeTxHashes.transactionData.encodedMessage}\`\n
+          *Method*: \`${safeTxHashes.transactionData.method}\`\n
+          *Parameters: \`${safeTxHashes.transactionData.parameters}\`\n
+          *Binary String Literal*: \`${safeTxHashes.legacyLedgerFormat.binaryStringLiteral}\`\n
+          *Domain Hash*: \`${safeTxHashes.hashes.domainHash}\`\n
+          *Message Hash*: \`${safeTxHashes.hashes.messageHash}\`\n
+          *Transaction Hash*: \`${safeTxHashes.hashes.safeTransactionHash}\``,
+          },
+        },
+        {
+          type: "divider",
+        },
+      );
+    }
 
     // Add alert for malicious transactions
     if (type === "malicious") {
-      blocks.unshift({
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: "🚨 *ALERT! ACTION REQUIRED: MALICIOUS TRANSACTION DETECTED!* 🚨",
+      blocks.unshift(
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: "🚨 *ALERT! ACTION REQUIRED: MALICIOUS TRANSACTION DETECTED!* 🚨",
+          },
         },
-      });
+        {
+          type: "divider",
+        },
+      );
     }
 
-    const message: SlackMessage = {
+    return {
       blocks,
-      text: `Transaction ${type} [${tx.confirmations.length}/${tx.confirmationsRequired}] with safeTxHash ${tx.safeTxHash}`,
+      text: `Transaction ${type} on ${name}`,
     };
-    return message;
   }
 
   #formatSigner(signer: { address: string; name?: string }): string {

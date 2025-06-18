@@ -11,7 +11,7 @@ export class NotificationSender implements INotificationSender {
 
   public async notify(
     event: Event,
-    safeTxHashes: SafeTxHashesResponse,
+    safeTxHashes?: SafeTxHashesResponse,
   ): Promise<void> {
     logger.debug({ event }, "notifying");
     try {

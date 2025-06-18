@@ -15,12 +15,12 @@ export interface Event {
 }
 
 export interface INotificationSender {
-  notify: (event: Event, safeTxHashes: SafeTxHashesResponse) => Promise<void>;
+  notify: (event: Event, safeTxHashes?: SafeTxHashesResponse) => Promise<void>;
 }
 
 export interface INotifier {
   send: (
     event: Event,
-    safeTxHashes: SafeTxHashesResponse,
+    safeTxHashes?: SafeTxHashesResponse,
   ) => void | Promise<void>;
 }

@@ -5,28 +5,43 @@ import logger from "../logger.js";
 import { NETWORKS } from "./constants.js";
 import type { SafeTxHashesResponse } from "./index.js";
 
+export type Result<T> = {
+  success: boolean;
+  data?: T;
+  error?: string;
+};
+
 export function SafeTxHashes(
   prefix: string,
   address: Address,
   nonce: number,
-): Promise<string> {
+): Promise<Result<string>> {
   const network = NETWORKS[prefix];
-  return new Promise<string>((resolve, reject) => {
+  return new Promise<Result<string>>(resolve => {
     exec(
       `/app/safe-hashes.sh --network ${network} --address ${address} --nonce ${nonce}`,
       (error, stdout, stderr) => {
         if (error) {
           logger.error(`error: ${error.message}`);
-          reject(new Error(`Error executing script: ${error.message}`));
+          resolve({
+            success: false,
+            error: `Error executing script: ${error.message}`,
+          });
           return;
         }
         if (stderr) {
           logger.error(`stderr: ${stderr}`);
-          reject(new Error(`Error executing script: ${stderr}`));
+          resolve({
+            success: false,
+            error: `Error executing script: ${stderr}`,
+          });
           return;
         }
         logger.debug("stdout:", stdout);
-        resolve(stdout as string);
+        resolve({
+          success: true,
+          data: stdout,
+        });
       },
     );
   });
