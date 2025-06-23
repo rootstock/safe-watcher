@@ -3,7 +3,10 @@ import { WebClient } from "@slack/web-api";
 
 import logger from "../logger.js";
 import { SAFE_API_URLS } from "../safe/constants.js";
-import type { SafeTxHashesResponse } from "../safe-hashes/index.js";
+import type {
+  SafeTxHashesResponse,
+  TxHashError,
+} from "../safe-hashes/index.js";
 import type { Event, INotifier } from "../types.js";
 
 export interface SlackOptions {
@@ -27,7 +30,7 @@ export class Slack implements INotifier {
 
   public async send(
     event: Event,
-    safeTxHashes?: SafeTxHashesResponse,
+    safeTxHashes?: SafeTxHashesResponse | TxHashError,
   ): Promise<void> {
     const message: SlackMessage = this.#formatMessage(event, safeTxHashes);
     await this.#sendToSlack(message);
@@ -35,7 +38,7 @@ export class Slack implements INotifier {
 
   #formatMessage(
     event: Event,
-    safeTxHashes?: SafeTxHashesResponse,
+    safeTxHashes?: SafeTxHashesResponse | TxHashError,
   ): SlackMessage {
     const { type, chainPrefix, safe, tx, name } = event;
 
@@ -90,27 +93,42 @@ export class Slack implements INotifier {
     ];
 
     if (safeTxHashes) {
-      blocks.push(
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: `*To*: \`${safeTxHashes.transactionData.to}\`\n
-          *Value*: \`${safeTxHashes.transactionData.value}\`\n
-          *Data*: \`${safeTxHashes.transactionData.data}\`\n
-          *Encoded Message*: \`${safeTxHashes.transactionData.encodedMessage}\`\n
-          *Method*: \`${safeTxHashes.transactionData.method}\`\n
-          *Parameters: \`${safeTxHashes.transactionData.parameters}\`\n
-          *Binary String Literal*: \`${safeTxHashes.legacyLedgerFormat.binaryStringLiteral}\`\n
-          *Domain Hash*: \`${safeTxHashes.hashes.domainHash}\`\n
-          *Message Hash*: \`${safeTxHashes.hashes.messageHash}\`\n
-          *Transaction Hash*: \`${safeTxHashes.hashes.safeTransactionHash}\``,
+      if (safeTxHashes instanceof Error) {
+        blocks.push(
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: `*ERROR:* ${safeTxHashes.message}`,
+            },
           },
-        },
-        {
-          type: "divider",
-        },
-      );
+          {
+            type: "divider",
+          },
+        );
+      } else if ("transactionData" in safeTxHashes) {
+        blocks.push(
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: `*To*: \`${safeTxHashes.transactionData.to}\`\n
+            *Value*: \`${safeTxHashes.transactionData.value}\`\n
+            *Data*: \`${safeTxHashes.transactionData.data}\`\n
+            *Encoded Message*: \`${safeTxHashes.transactionData.encodedMessage}\`\n
+            *Method*: \`${safeTxHashes.transactionData.method}\`\n
+            *Parameters: \`${safeTxHashes.transactionData.parameters}\`\n
+            *Binary String Literal*: \`${safeTxHashes.legacyLedgerFormat.binaryStringLiteral}\`\n
+            *Domain Hash*: \`${safeTxHashes.hashes.domainHash}\`\n
+            *Message Hash*: \`${safeTxHashes.hashes.messageHash}\`\n
+            *Transaction Hash*: \`${safeTxHashes.hashes.safeTransactionHash}\``,
+            },
+          },
+          {
+            type: "divider",
+          },
+        );
+      }
     }
 
     // Add alert for malicious transactions

@@ -1,5 +1,8 @@
 import logger from "../logger.js";
-import type { SafeTxHashesResponse } from "../safe-hashes/index.js";
+import type {
+  SafeTxHashesResponse,
+  TxHashError,
+} from "../safe-hashes/index.js";
 import type { Event, INotificationSender, INotifier } from "../types.js";
 
 export class NotificationSender implements INotificationSender {
@@ -11,7 +14,7 @@ export class NotificationSender implements INotificationSender {
 
   public async notify(
     event: Event,
-    safeTxHashes?: SafeTxHashesResponse,
+    safeTxHashes?: SafeTxHashesResponse | TxHashError | undefined,
   ): Promise<void> {
     logger.debug({ event }, "notifying");
     try {

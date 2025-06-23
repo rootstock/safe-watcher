@@ -3,7 +3,10 @@ import { md } from "@vlad-yakovlev/telegram-md";
 
 import logger from "../logger.js";
 import type { Signer } from "../safe/index.js";
-import type { SafeTxHashesResponse } from "../safe-hashes/index.js";
+import type {
+  SafeTxHashesResponse,
+  TxHashError,
+} from "../safe-hashes/index.js";
 import type { Event, EventType, INotifier } from "../types.js";
 
 const ACTIONS: Record<EventType, string> = {
@@ -41,13 +44,16 @@ export class Telegram implements INotifier {
 
   public async send(
     event: Event,
-    safeTxHashes?: SafeTxHashesResponse,
+    safeTxHashes?: SafeTxHashesResponse | TxHashError,
   ): Promise<void> {
     const msg = this.#getMessage(event, safeTxHashes);
     await this.#sendToTelegram(msg.toString());
   }
 
-  #getMessage(event: Event, safeTxHashes?: SafeTxHashesResponse): Markdown {
+  #getMessage(
+    event: Event,
+    safeTxHashes?: SafeTxHashesResponse | TxHashError,
+  ): Markdown {
     const { type, chainPrefix, safe, tx, name } = event;
 
     const link = md.link(
@@ -67,7 +73,9 @@ export class Telegram implements INotifier {
     const components = [msg, proposer, confirmations];
 
     if (safeTxHashes) {
-      components.push(md`to: ${safeTxHashes.transactionData.to}`);
+      if ("transactionData" in safeTxHashes) {
+        components.push(md`to: ${safeTxHashes.transactionData.to}`);
+      }
     }
 
     const links = [link /* , report */];

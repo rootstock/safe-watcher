@@ -11,7 +11,7 @@ RUN npm run build
 FROM node:24-alpine@sha256:7aaba6b13a55a1d78411a1162c1994428ed039c6bbef7b1d9859c25ada1d7cc5
 
 # Update packages and install dependencies
-RUN apk --no-cache add curl jq xxd
+RUN apk --no-cache add curl jq xxd bash ncurses
 
 # Set the default shell to zsh
 ENV SHELL=/usr/bin/zsh
