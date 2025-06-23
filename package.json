@@ -87,7 +87,8 @@
       "src/safe/*.ts",
       "src/config/*.ts",
       "src/utils/*.ts",
-      "src/index.ts"
+      "src/index.ts",
+      "src/SafeWatcher.ts"
     ],
     "coverageThreshold": {
       "global": {
