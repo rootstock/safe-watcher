@@ -225,7 +225,9 @@ describe("SafeWatcher", () => {
       const event = mock.mock.calls[0][0] as Event;
       expect(event.type).toBe("created");
       // Verify that notification was sent without safeTxHashes
-      expect(mock.mock.calls[0][1]).toBeUndefined();
+      expect(mock.mock.calls[0][1]).toEqual({
+        message: "Failed to get hashes",
+      });
     });
   });
 
@@ -335,6 +337,300 @@ describe("SafeWatcher", () => {
 
       await watcher.start(0);
       expect(watcher.interval).toBeUndefined();
+    });
+  });
+
+  describe("Constructor Variations", () => {
+    test("should initialize with SafeApiWrapper when api is string", () => {
+      const watcher = new SafeWatcher({
+        safe: mockSafeAddressWithAlias,
+        api: "fallback",
+        signers: mockSignerAddress,
+      });
+      expect(watcher.prefix).toBe(rskPrefix);
+      expect(watcher.safe).toBe(mockSafeAddressNoPrefix);
+    });
+
+    test("should initialize with custom ISafeAPI object", () => {
+      const customApi = createMockApi();
+      const watcher = new SafeWatcher({
+        safe: mockSafeAddressWithAlias,
+        api: customApi,
+        signers: mockSignerAddress,
+      });
+      expect(watcher.prefix).toBe(rskPrefix);
+      expect(watcher.safe).toBe(mockSafeAddressNoPrefix);
+    });
+
+    test("should initialize without optional parameters", () => {
+      const watcher = new SafeWatcher({
+        safe: mockSafeAddressWithAlias,
+      });
+      expect(watcher.prefix).toBe(rskPrefix);
+      expect(watcher.safe).toBe(mockSafeAddressNoPrefix);
+      expect(watcher.name).toBe(mockSafeAddressAlias);
+    });
+
+    test("should handle safe address with no alias", () => {
+      const watcher = new SafeWatcher({
+        safe: { "rsk:0x0000000000000000000000000000000000000001": "" },
+      });
+      expect(watcher.name).toBe("");
+    });
+  });
+
+  describe("Utility Functions", () => {
+    test("should return correct safe address with getSafeAddress", () => {
+      const watcher = createTestWatcher();
+      expect(watcher.getSafeAddress()).toBe(
+        "rsk:0x0000000000000000000000000000000000000001",
+      );
+    });
+
+    test("should return poll interval with getPollInterval", async () => {
+      const watcher = createTestWatcher();
+      expect(watcher.getPollInterval()).toBeUndefined();
+
+      await watcher.start(5000);
+      expect(watcher.getPollInterval()).toBe(5000);
+      watcher.stop();
+    });
+  });
+
+  describe("Checksum Address Handling", () => {
+    test("should handle RSK checksum addresses", async () => {
+      const { notifier, mock } = createMockNotifier();
+      const mockApi = createMockApi({
+        fetchLatest: jest
+          .fn<() => Promise<ListedSafeTx[]>>()
+          .mockResolvedValue([mockListedTx]),
+      });
+
+      // Create a watcher with RSK prefix
+      const watcher = new SafeWatcher({
+        safe: { "rsk:0x0000000000000000000000000000000000000001": "RSK Safe" },
+        api: mockApi,
+        notifier,
+        signers: { "0x0000000000000000000000000000000000000002": "RSK Signer" },
+      });
+
+      await watcher.start(0);
+      await watcher["poll"]();
+      watcher.stop();
+
+      expect(mock).toHaveBeenCalled();
+    });
+
+    test("should handle TRSK checksum addresses", async () => {
+      const { notifier, mock } = createMockNotifier();
+      const mockApi = createMockApi({
+        fetchLatest: jest
+          .fn<() => Promise<ListedSafeTx[]>>()
+          .mockResolvedValue([mockListedTx]),
+      });
+
+      // Create a watcher with TRSK prefix
+      const watcher = new SafeWatcher({
+        safe: {
+          "trsk:0x0000000000000000000000000000000000000001": "TRSK Safe",
+        },
+        api: mockApi,
+        notifier,
+        signers: {
+          "0x0000000000000000000000000000000000000002": "TRSK Signer",
+        },
+      });
+
+      await watcher.start(0);
+      await watcher["poll"]();
+      watcher.stop();
+
+      expect(mock).toHaveBeenCalled();
+    });
+
+    test("should handle non-RSK/TRSK checksum addresses", async () => {
+      const { notifier, mock } = createMockNotifier();
+      const mockApi = createMockApi({
+        fetchLatest: jest
+          .fn<() => Promise<ListedSafeTx[]>>()
+          .mockResolvedValue([mockListedTx]),
+      });
+
+      // Create a watcher with ETH prefix
+      const watcher = new SafeWatcher({
+        safe: { "eth:0x0000000000000000000000000000000000000001": "ETH Safe" },
+        api: mockApi,
+        notifier,
+        signers: { "0x0000000000000000000000000000000000000002": "ETH Signer" },
+      });
+
+      await watcher.start(0);
+      await watcher["poll"]();
+      watcher.stop();
+
+      expect(mock).toHaveBeenCalled();
+    });
+  });
+
+  describe("SafeTx Hash Processing Edge Cases", () => {
+    test("should handle SafeTxHashes parse error", async () => {
+      const { notifier, mock } = createMockNotifier();
+      const mockApi = createMockApi({
+        fetchLatest: jest
+          .fn<() => Promise<ListedSafeTx[]>>()
+          .mockResolvedValue([mockListedTx]),
+      });
+
+      // Mock SafeTxHashes to return success but parseResponse to fail
+      const {
+        SafeTxHashes,
+        parseResponse,
+      } = require("../src/safe-hashes/index.js");
+      SafeTxHashes.mockImplementationOnce(() =>
+        Promise.resolve({
+          success: true,
+          data: "invalid response",
+        }),
+      );
+      parseResponse.mockImplementationOnce(() => {
+        throw new Error("Parse error");
+      });
+
+      const watcher = createTestWatcher({ api: mockApi, notifier });
+      watcher.txs.clear();
+      await watcher.start(0);
+      await watcher["poll"]();
+      watcher.stop();
+
+      expect(mock).toHaveBeenCalled();
+      // Should receive error object
+      expect(mock.mock.calls[0][1]).toEqual({
+        message: "Failed to parse SafeTxHahes response",
+      });
+    });
+
+    test("should handle SafeTxHashes with no success and no error", async () => {
+      const { notifier, mock } = createMockNotifier();
+      const mockApi = createMockApi({
+        fetchLatest: jest
+          .fn<() => Promise<ListedSafeTx[]>>()
+          .mockResolvedValue([mockListedTx]),
+      });
+
+      // Mock SafeTxHashes to return neither success nor error
+      const { SafeTxHashes } = require("../src/safe-hashes/index.js");
+      SafeTxHashes.mockImplementationOnce(() =>
+        Promise.resolve({
+          success: false,
+          // no error field
+        }),
+      );
+
+      const watcher = createTestWatcher({ api: mockApi, notifier });
+      watcher.txs.clear();
+      await watcher.start(0);
+      await watcher["poll"]();
+      watcher.stop();
+
+      expect(mock).toHaveBeenCalled();
+    });
+  });
+
+  describe("Transaction Update Edge Cases", () => {
+    test("should skip update when transaction has no changes", async () => {
+      const { notifier, mock } = createMockNotifier();
+      const mockApi = createMockApi({
+        fetchLatest: jest
+          .fn<() => Promise<ListedSafeTx[]>>()
+          .mockResolvedValue([mockListedTx]),
+      });
+      const watcher = createTestWatcher({ api: mockApi, notifier });
+
+      // First add the transaction
+      await watcher.start(0);
+      await watcher["poll"]();
+
+      // Update with same values (no real change)
+      const unchangedTx = { ...mockListedTx }; // Same isExecuted and confirmations
+      const mockFetchLatest = mockApi.fetchLatest as jest.Mock<
+        () => Promise<ListedSafeTx[]>
+      >;
+      mockFetchLatest.mockResolvedValueOnce([unchangedTx]);
+      await watcher["poll"]();
+
+      // Should only be called once (for creation, not for the "update")
+      expect(mock).toHaveBeenCalledTimes(1);
+    });
+
+    test("should handle transaction with confirmation count change", async () => {
+      const { notifier, mock } = createMockNotifier();
+      const mockApi = createMockApi({
+        fetchLatest: jest
+          .fn<() => Promise<ListedSafeTx[]>>()
+          .mockResolvedValue([mockListedTx]),
+      });
+      const watcher = createTestWatcher({ api: mockApi, notifier });
+
+      // First add the transaction
+      await watcher.start(0);
+      await watcher["poll"]();
+
+      // Update confirmations count only
+      const updatedTx = { ...mockListedTx, confirmations: 2 };
+      const mockFetchLatest = mockApi.fetchLatest as jest.Mock<
+        () => Promise<ListedSafeTx[]>
+      >;
+      mockFetchLatest.mockResolvedValueOnce([updatedTx]);
+      await watcher["poll"]();
+
+      expect(mock).toHaveBeenCalledTimes(2);
+      const updateEvent = mock.mock.calls[1][0] as Event;
+      expect(updateEvent.type).toBe("updated");
+    });
+  });
+
+  describe("Error Handling Edge Cases", () => {
+    test("should handle errors in poll loop and continue", async () => {
+      const mockApi = createMockApi({
+        fetchLatest: jest
+          .fn<() => Promise<ListedSafeTx[]>>()
+          .mockResolvedValue([mockListedTx]),
+        fetchDetailed: jest
+          .fn<(hash: Hash) => Promise<SafeTx<Address>>>()
+          .mockRejectedValueOnce(new Error("Fetch detailed error"))
+          .mockResolvedValue(mockDetailedTx),
+      });
+
+      const watcher = createTestWatcher({ api: mockApi });
+
+      await watcher.start(0);
+      // This should handle the error and not throw
+      await watcher["poll"]();
+      watcher.stop();
+
+      // Verify that fetchDetailed was called and errored
+      expect(mockApi.fetchDetailed).toHaveBeenCalled();
+    });
+
+    test("should handle error in start interval callback", async () => {
+      const mockApi = createMockApi({
+        fetchLatest: jest
+          .fn<() => Promise<ListedSafeTx[]>>()
+          .mockRejectedValue(new Error("Poll error")),
+      });
+
+      const watcher = createTestWatcher({ api: mockApi });
+
+      // Start with a short interval to test error handling
+      await watcher.start(1);
+
+      // Wait for the interval to trigger and handle error
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      watcher.stop();
+
+      // The error should be caught and logged, not thrown
+      expect(mockApi.fetchLatest).toHaveBeenCalled();
     });
   });
 });
