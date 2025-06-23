@@ -19,3 +19,7 @@ export interface SafeTxHashesResponse {
     safeTransactionHash: `0x${string}`;
   };
 }
+
+export interface TxHashError {
+  message: string;
+}

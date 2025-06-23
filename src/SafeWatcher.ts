@@ -13,7 +13,7 @@ import type {
   Signer,
 } from "./safe/index.js";
 import { MULTISEND_CALL_ONLY, SafeApiWrapper } from "./safe/index.js";
-import type { SafeTxHashesResponse } from "./safe-hashes/index.js";
+import type { SafeTxHashesResponse, TxHashError } from "./safe-hashes/index.js";
 import { parseResponse, Result, SafeTxHashes } from "./safe-hashes/index.js";
 import type { INotificationSender } from "./types.js";
 
@@ -204,13 +204,20 @@ class SafeWatcher {
 
   #safeTxHashesProcessing(
     safeTxHashesResult: Result<string>,
-  ): SafeTxHashesResponse | undefined {
+  ): SafeTxHashesResponse | TxHashError | undefined {
     if (safeTxHashesResult.success && safeTxHashesResult.data) {
       try {
         return parseResponse(safeTxHashesResult.data);
       } catch (error) {
         this.#logger.error({ error }, "Failed to parse SafeTxHashes response");
+        return { message: "Failed to parse SafeTxHahes response" };
       }
+    } else if (safeTxHashesResult.error) {
+      this.#logger.error(
+        { error: safeTxHashesResult.error },
+        "Failed to get SafeTxHashes",
+      );
+      return { message: safeTxHashesResult.error?.toString() || "error" };
     } else {
       this.#logger.error(
         { error: safeTxHashesResult.error },

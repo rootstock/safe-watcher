@@ -17,34 +17,92 @@ export function SafeTxHashes(
   nonce: number,
 ): Promise<Result<string>> {
   const network = NETWORKS[prefix];
-  return new Promise<Result<string>>(resolve => {
-    exec(
-      `/app/safe-hashes.sh --network ${network} --address ${address} --nonce ${nonce}`,
-      (error, stdout, stderr) => {
-        if (error) {
-          logger.error(`error: ${error.message}`);
+
+  const executeWithRetry = (
+    attempt: number = 1,
+    maxRetries: number = 3,
+  ): Promise<Result<string>> => {
+    return new Promise<Result<string>>(resolve => {
+      const timeout = 30000; // 30 seconds timeout
+
+      const childProcess = exec(
+        `/app/safe-hashes.sh --network ${network} --address ${address} --nonce ${nonce}`,
+        { timeout },
+        (error, stdout, stderr) => {
+          if (error) {
+            logger.error(`error (attempt ${attempt}): ${error.message}`);
+
+            // Check if the error is due to timeout (script waiting for input)
+            if (error.signal === "SIGTERM" && error.code === null) {
+              logger.warn(
+                `Script execution timed out after ${timeout}ms - likely waiting for input (attempt ${attempt})`,
+              );
+              resolve({
+                success: false,
+                error: `Script execution timed out - script may be waiting for user input`,
+              });
+              return;
+            }
+
+            // Retry for error code 22 if we haven't exceeded max retries
+            if (error.code === 22 && attempt < maxRetries) {
+              logger.info(
+                `Retrying due to error code 22... (attempt ${attempt + 1}/${maxRetries})`,
+              );
+              executeWithRetry(attempt + 1, maxRetries).then(resolve);
+              return;
+            }
+
+            resolve({
+              success: false,
+              error: `Error executing script: ${error.message}`,
+            });
+            return;
+          }
+          if (stderr) {
+            logger.error(`stderr: ${stderr}`);
+            resolve({
+              success: false,
+              error: `Error executing script: ${stderr}`,
+            });
+            return;
+          }
+          logger.debug("stdout:", stdout);
           resolve({
-            success: false,
-            error: `Error executing script: ${error.message}`,
+            success: true,
+            data: stdout,
           });
-          return;
+        },
+      );
+
+      // Additional timeout handling with explicit process kill
+      const timeoutId = globalThis.setTimeout(() => {
+        if (childProcess && !childProcess.killed) {
+          logger.warn(
+            `Force killing script process after ${timeout}ms timeout - script appears to be waiting for input (attempt ${attempt})`,
+          );
+          childProcess.kill("SIGTERM");
+
+          // If SIGTERM doesn't work, use SIGKILL
+          globalThis.setTimeout(() => {
+            if (childProcess && !childProcess.killed) {
+              logger.error(
+                `Force killing script process with SIGKILL (attempt ${attempt})`,
+              );
+              childProcess.kill("SIGKILL");
+            }
+          }, 5000);
         }
-        if (stderr) {
-          logger.error(`stderr: ${stderr}`);
-          resolve({
-            success: false,
-            error: `Error executing script: ${stderr}`,
-          });
-          return;
-        }
-        logger.debug("stdout:", stdout);
-        resolve({
-          success: true,
-          data: stdout,
-        });
-      },
-    );
-  });
+      }, timeout);
+
+      // Clear timeout if process completes normally
+      childProcess.on("exit", () => {
+        globalThis.clearTimeout(timeoutId);
+      });
+    });
+  };
+
+  return executeWithRetry();
 }
 
 export function parseResponse(response: string): SafeTxHashesResponse {
