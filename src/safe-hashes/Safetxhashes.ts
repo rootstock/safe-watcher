@@ -26,7 +26,7 @@ export function SafeTxHashes(
       const timeout = 30000; // 30 seconds timeout
 
       const childProcess = exec(
-        `/app/safe-hashes.sh --network ${network} --address ${address} --nonce ${nonce}`,
+        `~/app/safe-hashes.sh --network ${network} --address ${address} --nonce ${nonce}`,
         { timeout },
         (error, stdout, stderr) => {
           if (error) {
