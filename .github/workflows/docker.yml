@@ -23,7 +23,7 @@ jobs:
           set -e
 
           docker build -t safe-watcher:latest .
-          container_id=$(docker run -d --name safe-watcher-container -v $(pwd)/config.example.yaml:/app/config.yaml safe-watcher:latest)
+          container_id=$(docker run -d --name safe-watcher-container -v $(pwd)/config.example.yaml:/home/node/app/config.yaml safe-watcher:latest)
           trap 'docker stop "$container_id"' EXIT INT QUIT TERM
 
           # Give a couple of seconds for the container to start.
