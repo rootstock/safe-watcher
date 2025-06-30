@@ -1632,7 +1632,7 @@ __metadata:
     "@types/tmp": "npm:^0.2.6"
     "@typescript-eslint/eslint-plugin": "npm:^8.34.1"
     "@typescript-eslint/parser": "npm:^8.34.1"
-    "@vlad-yakovlev/telegram-md": "npm:^2.0.0"
+    "@vlad-yakovlev/telegram-md": "npm:^2.1.0"
     abitype: "npm:^1.0.8"
     date-fns: "npm:^4.1.0"
     esbuild: "npm:^0.25.5"
@@ -3412,10 +3412,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vlad-yakovlev/telegram-md@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "@vlad-yakovlev/telegram-md@npm:2.0.0"
-  checksum: 10c0/1599a24576e50ac44dee40e2c303084b6c8d3c0db645fc9ef03a22104716195b91f1ac8a269f6bd41d13037eec367586a6582a7646789eee1de2bc2cb4f0118b
+"@vlad-yakovlev/telegram-md@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "@vlad-yakovlev/telegram-md@npm:2.1.0"
+  checksum: 10c0/b4915f93dd73dbdb8e45a4ae11dfd1041fb4248bf9036a681af7c158b886fbf81fe88db61378d4b21b35efae076a0c272fab6c81c572bb2057575e24e469083b
   languageName: node
   linkType: hard
 
