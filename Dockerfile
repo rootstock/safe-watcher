@@ -1,4 +1,4 @@
-FROM node:24@sha256:d1db2ecd11f417ab2ff4fef891b4d27194c367d101f9b9cd546a26e424e93d31 AS build
+FROM node:24@sha256:4b383ce285ed2556aa05a01c76305405a3fecd410af56e2d47a039c59bdc2f04 AS build
 
 # Enable corepack to use yarn@4.6.0
 RUN corepack enable
@@ -32,7 +32,7 @@ RUN mkdir -p $BIN_DIR && \
 # Installing foundry
 RUN $BIN_PATH --platform alpine
 
-FROM node:24-alpine@sha256:7aaba6b13a55a1d78411a1162c1994428ed039c6bbef7b1d9859c25ada1d7cc5
+FROM node:24-alpine@sha256:49e45bf002728e35c3a466737d8bcfe12c29731c7c2f3e223f9a7c794fff19a4
 
 # Update packages and install dependencies
 RUN apk --no-cache add curl jq xxd bash ncurses
