@@ -1,4 +1,4 @@
-FROM node:24@sha256:4b383ce285ed2556aa05a01c76305405a3fecd410af56e2d47a039c59bdc2f04 AS build
+FROM node:24@sha256:8369522c586f6cafcf77e44630e7036e4972933892f8b45e42d9baeb012d521c AS build
 
 # Enable corepack to use yarn@4.6.0
 RUN corepack enable
@@ -15,31 +15,15 @@ COPY --chown=node:node . .
 
 RUN yarn build
 
-FROM alpine:3.22@sha256:8a1f59ffb675680d47db6337b49d22281a139e9d709335b492be023728e11715 AS foundry-build
+FROM node:24@sha256:8369522c586f6cafcf77e44630e7036e4972933892f8b45e42d9baeb012d521c
 
 # Update packages and install dependencies
-RUN apk --no-cache add curl git bash
-
-ARG BIN_URL="https://raw.githubusercontent.com/foundry-rs/foundry/master/foundryup/foundryup"
-ARG BIN_DIR=/root/.foundry/bin
-ARG BIN_PATH=$BIN_DIR/foundryup
-
-# Configure directory for install (replacing foundry install script)
-RUN mkdir -p $BIN_DIR && \
-    curl -sSf -L $BIN_URL -o $BIN_PATH && \
-    chmod +x $BIN_PATH
-
-# Installing foundry
-RUN $BIN_PATH --platform alpine
-
-FROM node:24-alpine@sha256:49e45bf002728e35c3a466737d8bcfe12c29731c7c2f3e223f9a7c794fff19a4
-
-# Update packages and install dependencies
-RUN apk --no-cache add curl jq xxd bash ncurses
+RUN apt-get update && \
+  apt-get install -y curl jq git xxd
 
 # Copy foundry tools
-COPY --from=foundry-build /root/.foundry/bin/chisel /usr/local/bin/chisel
-COPY --from=foundry-build /root/.foundry/bin/cast /usr/local/bin/cast
+COPY --from=ghcr.io/foundry-rs/foundry:stable /usr/local/bin/chisel /usr/local/bin/chisel
+COPY --from=ghcr.io/foundry-rs/foundry:stable /usr/local/bin/cast /usr/local/bin/cast
 
 USER node
 
