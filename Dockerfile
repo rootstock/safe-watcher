@@ -19,7 +19,8 @@ FROM node:24@sha256:8369522c586f6cafcf77e44630e7036e4972933892f8b45e42d9baeb012d
 
 # Update packages and install dependencies
 RUN apt-get update && \
-  apt-get install -y curl jq git xxd
+  apt-get install -y curl jq git xxd && \
+  apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Copy foundry tools
 COPY --from=ghcr.io/foundry-rs/foundry:stable /usr/local/bin/chisel /usr/local/bin/chisel
