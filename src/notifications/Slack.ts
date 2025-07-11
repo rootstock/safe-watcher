@@ -44,48 +44,19 @@ export class Slack implements INotifier {
 
     const blocks: KnownBlock[] = [
       {
-        type: "section",
+        type: "header",
         text: {
-          type: "mrkdwn",
-          text: `*Transaction ${type} on ${name}*\nChain: ${chainPrefix}\nSafe: \`${safe}\`\nTx Hash: \`${tx.safeTxHash}\`\nNonce: \`${tx.nonce}\``,
+          type: "plain_text",
+          text: `:alert: Transaction ${type} on ${name}`,
+          emoji: true,
         },
       },
       {
         type: "section",
         text: {
           type: "mrkdwn",
-          text: `*Signatures*: ${tx.confirmations.length}/${tx.confirmationsRequired}`,
+          text: `:chains: *Chain:* ${chainPrefix.toUpperCase()}\n:shield: *Safe:* \`${safe}\`\n:id: *Tx Hash:* \`${tx.safeTxHash}\`\n:mag: *Nonce:* \`${tx.nonce}\`\n:pencil2: *Signatures*: ${tx.confirmations.length}/${tx.confirmationsRequired}\n:lower_left_crayon: *Proposer*: ${this.#formatSigner(tx.proposer)}\n:lower_left_fountain_pen: *Signers*: ${tx.confirmations.map(this.#formatSigner).join(", ")}`,
         },
-      },
-      {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `*Proposer*: ${this.#formatSigner(tx.proposer)}`,
-        },
-      },
-      {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `*Signers*: ${tx.confirmations.map(this.#formatSigner).join(", ")}`,
-        },
-      },
-      {
-        type: "divider",
-      },
-      {
-        type: "actions",
-        elements: [
-          {
-            type: "button",
-            text: {
-              type: "plain_text",
-              text: "View Transaction",
-            },
-            url: `${SAFE_API_URLS[chainPrefix.trim()]}/${chainPrefix.trim()}:${safe}/transactions/queue`,
-          },
-        ],
       },
       {
         type: "divider",
@@ -112,16 +83,23 @@ export class Slack implements INotifier {
             type: "section",
             text: {
               type: "mrkdwn",
-              text: `*To*: \`${safeTxHashes.transactionData.to}\`\n
-            *Value*: \`${safeTxHashes.transactionData.value}\`\n
-            *Data*: \`${safeTxHashes.transactionData.data}\`\n
-            *Encoded Message*: \`${safeTxHashes.transactionData.encodedMessage}\`\n
-            *Method*: \`${safeTxHashes.transactionData.method}\`\n
-            *Parameters: \`${safeTxHashes.transactionData.parameters}\`\n
-            *Binary String Literal*: \`${safeTxHashes.legacyLedgerFormat.binaryStringLiteral}\`\n
-            *Domain Hash*: \`${safeTxHashes.hashes.domainHash}\`\n
-            *Message Hash*: \`${safeTxHashes.hashes.messageHash}\`\n
-            *Transaction Hash*: \`${safeTxHashes.hashes.safeTransactionHash}\``,
+              text: "*Safe Transaction details*",
+            },
+          },
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: `:person: *To*: \`${safeTxHashes.transactionData.to}\`\n
+:money: *Value*: \`${safeTxHashes.transactionData.value}\`\n
+:bookmark: *Data*: \`${safeTxHashes.transactionData.data}\`\n
+:notebook: *Encoded Message*: \`\`\`${safeTxHashes.transactionData.encodedMessage}\`\`\`\n
+:moneybag: *Method*: \`${safeTxHashes.transactionData.method}\`\n
+:gear: *Parameters*: \`${safeTxHashes.transactionData.parameters}\`\n
+:books: *Binary String Literal*: \`${safeTxHashes.legacyLedgerFormat.binaryStringLiteral}\`\n
+:hash: *Domain Hash*: \`${safeTxHashes.hashes.domainHash}\`\n
+:hash: *Message Hash*: \`${safeTxHashes.hashes.messageHash}\`\n
+:id: *Transaction Hash*: \`${safeTxHashes.hashes.safeTransactionHash}\``,
             },
           },
           {
@@ -131,14 +109,40 @@ export class Slack implements INotifier {
       }
     }
 
+    blocks.push(
+      {
+        type: "section",
+        text: {
+          type: "plain_text",
+          text: "View Transaction on Safe website",
+          emoji: true,
+        },
+        accessory: {
+          type: "button",
+          text: {
+            type: "plain_text",
+            text: "Click Me",
+            emoji: true,
+          },
+          value: "view_transaction",
+          url: `${SAFE_API_URLS[chainPrefix.trim()]}/${chainPrefix.trim()}:${safe}/transactions/queue`,
+          action_id: "button-action",
+        },
+      },
+      {
+        type: "divider",
+      },
+    );
+
     // Add alert for malicious transactions
     if (type === "malicious") {
       blocks.unshift(
         {
-          type: "section",
+          type: "header",
           text: {
-            type: "mrkdwn",
-            text: "🚨 *ALERT! ACTION REQUIRED: MALICIOUS TRANSACTION DETECTED!* 🚨",
+            type: "plain_text",
+            text: ":alert: ALERT! ACTION REQUIRED: MALICIOUS TRANSACTION DETECTED! :alert:",
+            emoji: true,
           },
         },
         {
