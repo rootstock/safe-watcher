@@ -1988,7 +1988,7 @@ __metadata:
     "@commitlint/config-conventional": "npm:^19.0.3"
     "@rsksmart/rsk-utils": "npm:^2.0.5"
     "@slack/types": "npm:^2.15.0"
-    "@slack/web-api": "npm:^7.9.2"
+    "@slack/web-api": "npm:^7.9.3"
     "@types/jest": "npm:^29.5.14"
     "@types/node": "npm:^24.0.3"
     "@types/tmp": "npm:^0.2.6"
@@ -2801,9 +2801,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@slack/web-api@npm:^7.9.2":
-  version: 7.9.2
-  resolution: "@slack/web-api@npm:7.9.2"
+"@slack/web-api@npm:^7.9.3":
+  version: 7.9.3
+  resolution: "@slack/web-api@npm:7.9.3"
   dependencies:
     "@slack/logger": "npm:^4.0.0"
     "@slack/types": "npm:^2.9.0"
@@ -2817,7 +2817,7 @@ __metadata:
     p-queue: "npm:^6"
     p-retry: "npm:^4"
     retry: "npm:^0.13.1"
-  checksum: 10c0/e51a6b46bbf76f4f1186e53e3859fc0c737914c32d678ca59e2f090f25f50bd2fb7a284848dd4a33e19150525535263c446deca70c1691fa81d5c48a7acbaa2b
+  checksum: 10c0/a08342156683abe6cd05659c6a51eeb782adcd7f418df43ad212501f0d0da77c6caf57785491a7f024116499e1819da589b803622318454b8abe6b375ba1d8c0
   languageName: node
   linkType: hard
 
