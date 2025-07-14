@@ -2021,7 +2021,7 @@ __metadata:
     vitest: "npm:^3.2.4"
     yaml: "npm:^2.8.0"
     zod: "npm:^3.25.67"
-    zod-config: "npm:^1.0.2"
+    zod-config: "npm:^1.1.2"
   languageName: unknown
   linkType: soft
 
@@ -9463,14 +9463,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zod-config@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "zod-config@npm:1.0.2"
+"zod-config@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "zod-config@npm:1.1.2"
   peerDependencies:
     dotenv: ">=15"
     smol-toml: ^1.x
     yaml: ^2.x
-    zod: ^3.25.0
+    zod: ^3.25.0 || ^4.0.0
   peerDependenciesMeta:
     dotenv:
       optional: true
@@ -9478,7 +9478,7 @@ __metadata:
       optional: true
     yaml:
       optional: true
-  checksum: 10c0/85f559bbe71081631675c7aa8af4b8af42f52ed116eab65b03949fd1f80abc080beb433b62f849f77142e3f042c20dfbfc9772151294322628522307dfa3405b
+  checksum: 10c0/83a34127ba1c0764409b41af5d88ff56562182dc38195e6b0374268355df1ca4fc050da703e3b6ed406f0d50fac44de79ea9f67c763282fba42f6d270f7e70a3
   languageName: node
   linkType: hard
 
