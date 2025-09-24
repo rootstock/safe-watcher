@@ -1,32 +1,53 @@
 version: 2
 updates:
-  # Maintain dependencies for GitHub Actions
+  # GitHub Actions - weekly updates
   - package-ecosystem: github-actions
+    target-branch: rootstock
     directory: /
     schedule:
-      interval:
-        weekly
-        # Wait at least 10 days after a new version is released before opening a PR
+      interval: weekly
     cooldown:
       default-days: 10
-    # one PR per week that groups BOTH minor + patch updates
+    labels:
+      - "dependencies"
+      - "github_actions"
     groups:
       actions-updates:
+        applies-to: version-updates
         patterns:
           - "*"
         update-types:
           - minor
           - patch
 
-  # Maintain dependencies for Docker
+  # GitHub Actions - daily security updates
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: daily
+    cooldown:
+      default-days: 1
+    labels:
+      - "dependencies"
+      - "github_actions"
+      - "security"
+    groups:
+      actions-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
+
+  # Docker - weekly updates
   - package-ecosystem: docker
+    target-branch: rootstock
     directory: /
     schedule:
       interval: weekly
-    # Wait at least 5 days after a new version is released before opening a PR
     cooldown:
       default-days: 10
-    # one PR per week that groups BOTH minor + patch updates
+    labels:
+      - "dependencies"
+      - "docker"
     groups:
       docker-updates:
         patterns:
@@ -35,18 +56,37 @@ updates:
           - minor
           - patch
 
-  # Maintain dependencies for npm and yarn
+  # Docker - daily security updates
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: daily
+    cooldown:
+      default-days: 1
+    labels:
+      - "dependencies"
+      - "docker"
+      - "security"
+    groups:
+      actions-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
+
+  # NPM & Yarn - weekly updates
   - package-ecosystem: npm
+    target-branch: rootstock
     directory: /
     schedule:
       interval: weekly
-    # Wait at least 5 days after a new version is released before opening a PR
+    labels:
+      - "dependencies"
+      - "npm"
     cooldown:
       default-days: 5
       semver-major-days: 30
       semver-minor-days: 7
       semver-patch-days: 3
-    # one PR per week that groups BOTH minor + patch updates
     groups:
       production-dependencies:
         dependency-type: "production"
@@ -62,3 +102,20 @@ updates:
         update-types:
           - minor
           - patch
+
+  # NPM & Yarn - daily security updates
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: daily
+    cooldown:
+      default-days: 1
+    labels:
+      - "dependencies"
+      - "npm"
+      - "security"
+    groups:
+      npm-dependencies:
+        applies-to: security-updates
+        patterns:
+          - "*"
