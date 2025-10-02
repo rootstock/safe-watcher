@@ -23,7 +23,7 @@
     "@aws-sdk/client-dynamodb": "^3.830.0",
     "@aws-sdk/client-secrets-manager": "^3.840.0",
     "@rsksmart/rsk-utils": "^2.0.5",
-    "@slack/types": "^2.15.0",
+    "@slack/types": "^2.16.0",
     "@slack/web-api": "^7.9.3",
     "@types/tmp": "^0.2.6",
     "@typescript-eslint/eslint-plugin": "^8.45.0",

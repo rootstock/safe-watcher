@@ -1994,7 +1994,7 @@ __metadata:
     "@commitlint/cli": "npm:^19.0.3"
     "@commitlint/config-conventional": "npm:^19.0.3"
     "@rsksmart/rsk-utils": "npm:^2.0.5"
-    "@slack/types": "npm:^2.15.0"
+    "@slack/types": "npm:^2.16.0"
     "@slack/web-api": "npm:^7.9.3"
     "@types/jest": "npm:^29.5.14"
     "@types/node": "npm:^24.3.0"
@@ -2794,10 +2794,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@slack/types@npm:^2.15.0":
-  version: 2.15.0
-  resolution: "@slack/types@npm:2.15.0"
-  checksum: 10c0/c746583eb2588b095981312419e6d0604123ef644900b2454fb9054424b43b911893868ee8605a136702ce113aa42ef45e3acd88140f32b85bd80dfcf8971256
+"@slack/types@npm:^2.16.0":
+  version: 2.16.0
+  resolution: "@slack/types@npm:2.16.0"
+  checksum: 10c0/bd2137e30307c66ea2644c8b6456998480a085e2523afdeb14e3627c28fbdffbd753635ad0057fdfd4fe0acdc50aea3571c308c4e1e3531cf329ca6b9e17b9cd
   languageName: node
   linkType: hard
 
