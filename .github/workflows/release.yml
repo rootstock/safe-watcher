@@ -22,15 +22,11 @@ jobs:
           fetch-depth: 0
           submodules: true
 
-      - name: Setup Node to enable Corepack
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 #v5.0.0
-        with:
-          node-version: ${{ env.node_version }}
-
       - name: Enable Corepack
         run: corepack enable
 
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 #v5.0.0
+      - name: Setup Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 #v5.0.0
         with:
           cache: "yarn"
           node-version-file: ".nvmrc"
