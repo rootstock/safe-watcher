@@ -83,10 +83,7 @@ export class AWSConfigManager {
   }
 
   async fetchFormattedAddresses(): Promise<
-    [
-      Partial<Record<`${string}:0x${string}`, string>>,
-      ...Partial<Record<`${string}:0x${string}`, string>>[],
-    ]
+    Record<`${string}:0x${string}`, string>[]
   > {
     const rawAddresses = (await this.dynamoDB.getItems(
       this.secrets.safeAddressesTable,
@@ -98,10 +95,7 @@ export class AWSConfigManager {
 
     return this.formatAddress(rawAddresses).map(item => ({
       [item.address]: item.alias,
-    })) as [
-      Partial<Record<`${string}:0x${string}`, string>>,
-      ...Partial<Record<`${string}:0x${string}`, string>>[],
-    ];
+    })) as Record<`${string}:0x${string}`, string>[];
   }
 
   async fetchFormattedSigners(): Promise<{ [key: string]: string }> {
