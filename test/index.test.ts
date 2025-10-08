@@ -139,19 +139,16 @@ describe("index.ts", () => {
       safeAddresses: [
         mockSafeAddressWithAlias,
         mockAnotherSafeAddressWithAlias,
-      ] as [
-        Partial<Record<`${string}:0x${string}`, string>>,
-        ...Partial<Record<`${string}:0x${string}`, string>>[],
-      ],
+      ] as Record<`${string}:0x${string}`, string>[],
     };
 
     // Second config only has one address (removing the other one)
     const mockConfigWithDifferentAddress = {
       ...defaultMockConfig,
-      safeAddresses: [mockSafeAddressWithAlias] as [
-        Partial<Record<`${string}:0x${string}`, string>>,
-        ...Partial<Record<`${string}:0x${string}`, string>>[],
-      ],
+      safeAddresses: [mockSafeAddressWithAlias] as Record<
+        `${string}:0x${string}`,
+        string
+      >[],
     };
 
     // Set up mock watcher to return the address that will be removed
@@ -207,10 +204,10 @@ describe("index.ts", () => {
   test("should handle config reload by reinitializing watchers", async () => {
     const newConfig = {
       ...defaultMockConfig,
-      safeAddresses: [mockSafeAddressWithAlias] as [
-        Partial<Record<`${string}:0x${string}`, string>>,
-        ...Partial<Record<`${string}:0x${string}`, string>>[],
-      ],
+      safeAddresses: [mockSafeAddressWithAlias] as Record<
+        `${string}:0x${string}`,
+        string
+      >[],
       telegramBotToken: "new-token",
       telegramChannelId: "new-channel",
       slackBotToken: "new-slack-token",
