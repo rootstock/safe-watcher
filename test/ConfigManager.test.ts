@@ -96,10 +96,7 @@ describe("reloadConfig", () => {
       safeAddresses: [
         ...initialConfig.safeAddresses,
         mockSafeAddressWithAlias,
-      ] as [
-        Partial<Record<`${string}:0x${string}`, string>>,
-        ...Partial<Record<`${string}:0x${string}`, string>>[],
-      ],
+      ] as Record<`${string}:0x${string}`, string>[],
       signers: initialConfig.signers,
       api: "fallback" as const,
     };
@@ -133,10 +130,10 @@ describe("reloadConfig", () => {
     };
     const newConfig = {
       ...initialConfig,
-      safeAddresses: [mockSafeAddressWithAlias] as [
-        Partial<Record<`${string}:0x${string}`, string>>,
-        ...Partial<Record<`${string}:0x${string}`, string>>[],
-      ],
+      safeAddresses: [mockSafeAddressWithAlias] as Record<
+        `${string}:0x${string}`,
+        string
+      >[],
       signers: initialConfig.signers,
       api: "fallback" as const,
     };
@@ -212,10 +209,7 @@ describe("hasConfigChanged", () => {
       safeAddresses: [
         ...initialConfig.safeAddresses,
         mockSafeAddressWithAlias,
-      ] as [
-        Partial<Record<`${string}:0x${string}`, string>>,
-        ...Partial<Record<`${string}:0x${string}`, string>>[],
-      ],
+      ] as Record<`${string}:0x${string}`, string>[],
       signers: initialConfig.signers,
       api: "fallback" as const,
     };
@@ -238,7 +232,7 @@ describe("hasConfigChanged", () => {
       ...initialConfig,
       signers: {
         ...initialConfig.signers,
-        mockNewSigner: mockSignerAddress,
+        [mockSignerAddress.address]: mockSignerAddress.alias,
       },
       api: "fallback" as const,
     };

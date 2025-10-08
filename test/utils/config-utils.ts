@@ -14,13 +14,13 @@ export const rskPrefix = "rsk";
 
 export const mockSafeAddressWithAlias = {
   "rsk:0x0000000000000000000000000000000000000001": "Safe 1",
-} as Partial<Record<`${string}:0x${string}`, string>>;
+} as Record<`${string}:0x${string}`, string>;
 
 export const mockSafeAddressAlias = "Safe 1";
 
 export const mockAnotherSafeAddressWithAlias = {
   "rsk:0x0000000000000000000000000000000000000002": "Safe 2",
-} as Partial<Record<`${string}:0x${string}`, string>>;
+} as Record<`${string}:0x${string}`, string>;
 
 export const mockTxHash =
   "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" as Hash;
@@ -38,7 +38,7 @@ export const createMockConfig = (overrides: Partial<Config> = {}) => ({
   pollInterval: 30,
   safeAddresses: [
     { "eth:0x1234567890123456789012345678901234567890": "Test Safe" },
-  ] as [Partial<Record<`${string}:0x${string}`, string>>],
+  ] as Record<`${string}:0x${string}`, string>[],
   signers: expectedFormattedSigners,
   api: "fallback" as const,
   slackBotToken: "xoxb-1234567890-1234567890-1234567890",
@@ -83,16 +83,13 @@ export const expectedFormattedAddresses = [
   { "rsk:0x1234567890123456789012345678901234567890": "Alice" },
   { "eth:0x0987654321098765432109876543210987654321": "Bob" },
   { "alg:0x1234567890abcdef1234567890abcdef12345678": "Charlie" },
-] as [
-  Partial<Record<`${string}:0x${string}`, string>>,
-  ...Partial<Record<`${string}:0x${string}`, string>>[],
-];
+] as Record<`${string}:0x${string}`, string>[];
 
 export const expectedFormattedSignersWitUpdatedAlias = {
   "0x1234567890123456789012345678901234567890": "Daniel",
   "0x0987654321098765432109876543210987654321": "Bob",
   "0x1234567890abcdef1234567890abcdef12345678": "Charlie",
-} as Partial<Record<`${string}:0x${string}`, string>>;
+} as Record<`${string}:0x${string}`, string>;
 
 export const expectedFormattedSigners = {
   "0x1234567890123456789012345678901234567890": "Alice",
