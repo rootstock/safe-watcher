@@ -29,7 +29,7 @@ export async function handleSafeAddress(
       try {
         await existingWatcher.stop();
       } catch (error) {
-        logger.error(`Failed to stop watcher for ${address}:`, error);
+        logger.error(`Failed to stop watcher for ${address}: ${error}`);
         // Continue with creating a new watcher even if stop fails
       }
       const watcher = new SafeWatcher({

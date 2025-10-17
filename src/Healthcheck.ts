@@ -36,12 +36,12 @@ class Healthcheck {
           res.end(this.#metrics());
         } catch (ex) {
           res.writeHead(500, { "Content-Type": "text/plain" });
-          logger.error("healthcheck error", { error: ex });
+          logger.error(`healthcheck error: ${ex}`);
           res.end("error");
         }
       } else {
         res.writeHead(404, { "Content-Type": "text/plain" });
-        logger.error("healthcheck not found", { url: req.url });
+        logger.error(`healthcheck not found: ${req.url}`);
         res.end("not found");
       }
     });

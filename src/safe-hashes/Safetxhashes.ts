@@ -67,7 +67,7 @@ export function SafeTxHashes(
             });
             return;
           }
-          logger.debug("stdout:", stdout);
+          logger.debug(`stdout: ${stdout}`);
           resolve({
             success: true,
             data: stdout,
