@@ -27,7 +27,7 @@ export async function getSecrets(): Promise<SecretStored> {
     logger.info("Secret retrieved successfully");
     return secret;
   } catch (error) {
-    logger.error("Error retrieving secret", error);
+    logger.error(`Error retrieving secret: ${error}`);
     throw new Error("Error retrieving secret");
   }
 }
