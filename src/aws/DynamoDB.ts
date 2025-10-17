@@ -34,7 +34,7 @@ export class DynamoDB {
         throw new Error(`No items found in table: ${tableName}`);
       }
     } catch (error) {
-      logger.error("Error fetching items", error);
+      logger.error(`Error fetching items: ${error}`);
       throw new Error("Error fetching items");
     }
   }
