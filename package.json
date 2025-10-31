@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.908.0",
-    "@aws-sdk/client-secrets-manager": "^3.911.0",
+    "@aws-sdk/client-secrets-manager": "^3.921.0",
     "@rsksmart/rsk-utils": "^2.0.5",
     "@slack/types": "^2.17.0",
     "@slack/web-api": "^7.10.0",
