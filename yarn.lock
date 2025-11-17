@@ -2129,7 +2129,7 @@ __metadata:
     "@commitlint/config-conventional": "npm:^20.0.0"
     "@rsksmart/rsk-utils": "npm:^2.0.5"
     "@slack/types": "npm:^2.17.0"
-    "@slack/web-api": "npm:^7.10.0"
+    "@slack/web-api": "npm:^7.12.0"
     "@types/jest": "npm:^30.0.0"
     "@types/node": "npm:^24.10.0"
     "@types/tmp": "npm:^0.2.6"
@@ -3026,12 +3026,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@slack/web-api@npm:^7.10.0":
-  version: 7.11.0
-  resolution: "@slack/web-api@npm:7.11.0"
+"@slack/types@npm:^2.18.0":
+  version: 2.18.0
+  resolution: "@slack/types@npm:2.18.0"
+  checksum: 10c0/e7f514226d6a0b8ca99442641b8f69e41f6c68494e31f7ca6b820e8cc087fc2ff193a49c2bda4e07c1c8102261d2d6f53e4200f047cf942285aff2f62d39c938
+  languageName: node
+  linkType: hard
+
+"@slack/web-api@npm:^7.12.0":
+  version: 7.12.0
+  resolution: "@slack/web-api@npm:7.12.0"
   dependencies:
     "@slack/logger": "npm:^4.0.0"
-    "@slack/types": "npm:^2.17.0"
+    "@slack/types": "npm:^2.18.0"
     "@types/node": "npm:>=18.0.0"
     "@types/retry": "npm:0.12.0"
     axios: "npm:^1.11.0"
@@ -3042,7 +3049,7 @@ __metadata:
     p-queue: "npm:^6"
     p-retry: "npm:^4"
     retry: "npm:^0.13.1"
-  checksum: 10c0/3d63b7d02b8ba107aa5d07090b3f83887ad35bf78c4c9561b175a96fcabab3bf5e77a46675571e1bb2f8aca708c259d92a78b4061d3aa788f4892aa09b9c4e8a
+  checksum: 10c0/3b40863c93a6530d9f8a27f23e3f5fa2388e10a3eab140fe8bf554a67c38b5265d052db45d6fee5624ce879e494ea47a9d019f8b9061572eae1deae636bfc802
   languageName: node
   linkType: hard
 
