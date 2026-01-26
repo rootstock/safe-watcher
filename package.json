@@ -29,7 +29,7 @@
     "@typescript-eslint/eslint-plugin": "^8.49.0",
     "@typescript-eslint/parser": "^8.49.0",
     "@vlad-yakovlev/telegram-md": "^2.1.0",
-    "abitype": "^1.2.1",
+    "abitype": "^1.2.3",
     "date-fns": "^4.1.0",
     "nanoid": "^5.1.6",
     "pino": "^10.1.0",
