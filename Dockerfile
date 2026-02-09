@@ -1,4 +1,4 @@
-FROM node:24@sha256:b2b2184ba9b78c022e1d6a7924ec6fba577adf28f15c9d9c457730cc4ad3807a AS build
+FROM node:24@sha256:1de022d8459f896fff2e7b865823699dc7a8d5567507e8b87b14a7442e07f206 AS build
 
 # Enable corepack to use yarn@4.6.0
 RUN corepack enable
@@ -15,7 +15,7 @@ COPY --chown=node:node . .
 
 RUN yarn build
 
-FROM node:24@sha256:b2b2184ba9b78c022e1d6a7924ec6fba577adf28f15c9d9c457730cc4ad3807a
+FROM node:24@sha256:1de022d8459f896fff2e7b865823699dc7a8d5567507e8b87b14a7442e07f206
 
 # Update packages and install dependencies
 RUN apt-get update && \
